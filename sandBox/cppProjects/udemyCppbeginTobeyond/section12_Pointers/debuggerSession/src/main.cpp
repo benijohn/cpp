@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -23,9 +24,7 @@ int main () {
     cout << "The numbers " << num1 << " & " << num2 << " when swapped are ";
     swap(&num1, &num2);
     cout << num1 << " & " << num2 << endl;
-
-
-
+    
 
     return 0;
 }
