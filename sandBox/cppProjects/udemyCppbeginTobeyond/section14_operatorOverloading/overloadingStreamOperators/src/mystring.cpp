@@ -72,6 +72,34 @@ MyString &MyString::operator=(MyString &&rhs) {
     return *this;
 }
 
+// cannot have both Member functions and Global functions defined
+// /// concatenate the strings
+// MyString MyString::operator+(const MyString &rhs) const {
+//     char *buff = new char [std::strlen(str) + std::strlen(rhs.str) + 1];
+//     std::strcpy(buff, str);
+//     std::strcat(buff, rhs.str);
+//     MyString temp {buff};
+//     delete [] buff;
+//     return temp;
+// }
+
+// // lowercase the string
+// MyString MyString::operator-() const {
+//     char *buff = new char [std::strlen(str) +1];
+//     std::strcpy(buff, str);
+//     for (size_t i {0}; i < std::strlen(buff); i++) {
+//         buff[i] = std::tolower(buff[i]);
+//     }
+//     MyString temp {buff};
+//     delete [] buff;                 /// de allocate the buffer to prevent memory leaks
+//     return temp;
+// };
+
+// // check equality of strings
+// bool MyString::operator==(const MyString &rhs) const {
+//     return (std::strcmp(str, rhs.str) == 0);
+// }
+
 void MyString::display () const {
     std::cout << str << " : " << get_length() << std::endl;
 }
@@ -82,4 +110,32 @@ int MyString::get_length () const {
 
 const char *MyString::get_str() const {
     return str;
+}
+
+
+// Equality
+bool operator==(const MyString &lhs, const MyString &rhs) {
+    return (std::strcmp(lhs.str, rhs.str) == 0);
+}
+
+// LowerCase
+MyString operator-(const MyString &obj) {
+    char *buff = new char [std::strlen(obj.str) + 1];
+    std::strcpy(buff, obj.str);
+    for (size_t i {0}; i < std::strlen(obj.str); i++) {
+        buff[i] = std::tolower(buff[i]);
+    }
+    MyString temp {buff};
+    delete [] buff;
+    return temp;
+}
+
+// Concatenate
+MyString operator+(const MyString &lhs, const MyString &rhs) {
+    char *buff = new char [std::strlen(lhs.str) + std::strlen(rhs.str) + 1];
+    std::strcpy(buff, lhs.str);
+    std::strcat(buff, rhs.str);
+    MyString temp {buff};
+    delete [] buff;
+    return temp;
 }

@@ -12,9 +12,12 @@ class MyString {
     MyString(MyString &&source);            // move constructor
     ~MyString();                            // destructor
 
-    // operator overloading
     MyString &operator=(const MyString &rhs);  // overloading the = operator ... copy assignment .... rhs = right hand side
     MyString &operator=(MyString &&rhs);       // overloading the = operator .... move assignment
+
+    MyString operator+(const MyString &rhs) const;  // concatenate the strings
+    MyString operator-() const;                 // lower case the string
+    bool operator==(const MyString &rhs) const;
 
 
     // methods 
