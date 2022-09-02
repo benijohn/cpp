@@ -5,27 +5,28 @@ using namespace std;
 
 int main () {
     MyString larry {"Larry"};
-    MyString curly {"Curly"};
     MyString moe {"Moe"};
-    MyString new_stooge {larry};
+    MyString curly;
     
     cout << boolalpha;
 
-    cout << (larry==curly) << endl;
-    cout << (larry==new_stooge) << endl;
+    cout << "Stooge 1: " << larry << endl;
+    cout << "Stooge 2: " << moe << endl;
 
-    larry.display();
-    larry = -larry;
-    larry.display();
+    cout << "Enter the third stooges name: ";
+    cin >> curly;
 
-    MyString stooges = larry + " Moe";
-    stooges.display();
+    cout << "You have name the third stooge: " << curly << endl;
+    cout << "\n\nTogether the three stooges are " << larry << " and " << curly << " and " << moe << endl;
 
-    MyString two_stooges = moe + " " + "Larry";
-    two_stooges.display();
+    cout << "Enter all the stooges names, separated by a space: ";
+    cin >> larry >> curly >> moe;
 
-    MyString three_stooges = larry + " " + "Curly" + " " + moe;
-    three_stooges.display();
+    cout << "\n\nEven now, they together are called: " << larry << " and " << curly << " and " << moe << endl;
+    
+
+
+
 
 
     return 0;

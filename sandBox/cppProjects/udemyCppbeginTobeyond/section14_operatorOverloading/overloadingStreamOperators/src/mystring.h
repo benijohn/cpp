@@ -5,6 +5,8 @@ class MyString {
     friend bool operator==(const MyString &lhs, const MyString &rhs);
     friend MyString operator-(const MyString &obj); // obj takes the place of " this " in the global setting since we don't have a " this " in the global sense
     friend MyString operator+(const MyString &lhs, const MyString &rhs);
+    friend std::ostream &operator<<(std::ostream &os, const MyString &rhs);
+    friend std::istream &operator>>(std::istream &is, MyString &rhs); 
 
 private:
     char *str;
