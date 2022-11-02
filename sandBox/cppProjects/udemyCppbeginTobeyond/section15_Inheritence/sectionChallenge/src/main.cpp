@@ -38,10 +38,15 @@ int main () {
     display(check_accounts);
     display(trust_accounts);
 
+    deposit(accounts, 1000);
+    deposit(sav_accounts, 1000);
+    deposit(check_accounts, 1000);
+    deposit(trust_accounts, 1000);
+
     withdraw(accounts, 4000);
     withdraw(sav_accounts, 4000);
     withdraw(check_accounts, 4000);
-    withdraw(trust_accounts, 4000);
+    withdraw(trust_accounts, 500);
 
     withdraw(trust_accounts, 4);
     withdraw(trust_accounts, 4);
