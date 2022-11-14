@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+               // "/home/benjamin/WorkSpace/projectChrono/chrono/src/**",
+                "/usr/include/**",
+                "/usr/local/include/**",
+                "/usr/local/include/chrono/collision/bullet/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/lib/ccache/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "linux-clang-x64"
+        }
+    ],
+    "version": 4
+}
