@@ -21,9 +21,6 @@ void my_deleter(Test *ptr) {
 
 int main () {
 
-    {
-        std::shared_ptr<Test> ptr1 {new Test {100}, my_deleter};
-    }
 
     std::cout << "\n===============================\n" << std::endl;
     std::cout << "Using lambda expression" << std::endl;
@@ -33,6 +30,12 @@ int main () {
         std::cout << "Using my lambda deleter" << std::endl;
         delete ptr;
     }};
+
+    std::cout << "\n===============================\n" << std::endl;
+    {
+        std::shared_ptr<Test> ptr1 {new Test {100}, my_deleter};
+    }
+    std::cout << "\n===============================\n" << std::endl;
 
 
 

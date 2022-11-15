@@ -63,11 +63,14 @@ int main () {
     std::shared_ptr<Account> acc1 = std::make_shared<Savings> ("Neptune", 100);
     std::shared_ptr<Account> acc2 = std::make_shared<Checking> ("Napoleon", 200);
     std::shared_ptr<Account> acc3 = std::make_shared<Trust> ("Melissa", 500, 15);
+    std::cout << acc1.use_count() << std::endl;
 
     std::vector<std::shared_ptr<Account>> accounts;
     accounts.push_back(acc1);
     accounts.push_back(acc2);
     accounts.push_back(acc3);
+
+    std::cout << acc1.use_count() << std::endl;
 
     for (const auto &acc: accounts) {
         std::cout << *acc << std::endl;
