@@ -144,7 +144,7 @@ void MyTerrain::OnInitialize(unsigned int num_tires) {
         m_bodies[i]->SetCollide(true);
 
         m_bodies[i]->GetCollisionModel()->ClearModel();
-        utils::AddCylinderGeometry(m_bodies[i].get(), mat_proxy, 0.4, 0.1 / 2);
+        utils::AddCylinderGeometry(m_bodies[i].get(), mat_proxy, 0.4, 0.2 / 2);
         m_bodies[i]->GetCollisionModel()->BuildModel();
 
         m_bodies[i]->GetVisualShape(0)->SetTexture(GetChronoDataFile("textures/greenwhite.png"));
@@ -239,10 +239,10 @@ int main(int argc, char** argv) {
     }
 
     // Simulation parameters
-    double step_size = 1e-4;
+    double step_size = 5e-4;
     double sim_time = 10;
     double output_fps = 100;
-    double render_fps = 100;
+    double render_fps = 50;
     bool render = true;
     std::string suffix = "";
     bool verbose = true;
@@ -290,7 +290,7 @@ int main(int argc, char** argv) {
 
         node = tire;
     } else if (rank == TERRAIN_NODE_RANK) {
-        auto terrain = new MyTerrain(4.0, 1.0);
+        auto terrain = new MyTerrain(4.0, 4.0);
         terrain->SetVerbose(verbose);
         terrain->SetStepSize(step_size);
         terrain->SetOutDir(out_dir, suffix);

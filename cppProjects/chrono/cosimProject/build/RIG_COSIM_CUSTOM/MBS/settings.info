@@ -1,5 +1,5 @@
 System settings
-   Integration step size = 0.0001
+   Integration step size = 0.0005
 Rig body masses
    total equivalent mass = 100
    individual body mass  = 31.2
