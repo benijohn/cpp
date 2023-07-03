@@ -38,8 +38,24 @@ int main( )
     window.addSubplot( u, "CONTROL  u" );
 
     OptimizationAlgorithm algorithm(ocp);   // construct optimization algorithm,
+
+    algorithm.set( INTEGRATOR_TYPE      , INT_RK78          ); // ocp algorithm options see ACADO examples (3) for more inforation
+    algorithm.set( INTEGRATOR_TOLERANCE , 1e-8              );
+    algorithm.set( DISCRETIZATION_TYPE  , SINGLE_SHOOTING   );
+    algorithm.set( KKT_TOLERANCE        , 1e-4              );
+
     algorithm << window                 ;   // flush the plot window,
     algorithm.solve()                   ;   // and solve the problem.
+
+    VariablesGrid states, parameters, controls;
+
+    algorithm.getDifferentialStates(states    );          // saving optimizaton results
+    algorithm.getParameters        (parameters);          // see example(4) for more information about how to write directly to MATLAB file
+    algorithm.getControls          (controls  );
+
+    states.print();
+    parameters.print();
+    controls.print();
 
     return 0                            ;
 }
