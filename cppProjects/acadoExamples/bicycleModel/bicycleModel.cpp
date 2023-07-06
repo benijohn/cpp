@@ -149,7 +149,7 @@ int main( )
     //MultiObjectiveAlgorithm alg( ocp );
     
     alg.set( INTEGRATOR_TYPE, INT_RK45 );
-    alg.set( MAX_NUM_ITERATIONS, 10 );
+    alg.set( MAX_NUM_ITERATIONS, 1 );
     alg.set( KKT_TOLERANCE, 1e-3 );
 
 
