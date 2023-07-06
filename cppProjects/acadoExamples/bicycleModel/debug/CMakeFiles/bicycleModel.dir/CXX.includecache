@@ -2703,8 +2703,4 @@ acado_toolkit.hpp
 -
 bindings/acado_gnuplot/gnuplot_window.hpp
 -
-iostream
--
-vector
--
 
