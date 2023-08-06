@@ -95,7 +95,7 @@ int main( )
     Q(2,2) = 1.0e-2;
     Q(3,3) = 1.0e-2;
     Q(4,4) = 1.0e-2;
-    Q(5,5) = 1000.0;
+    Q(5,5) = 100.0;
     Q(6,6) = 1.0e-2;
     Q(7,7) = 1.0e-4;
 
@@ -103,8 +103,8 @@ int main( )
     DVector r(8); 
     r.setAll( 0.0 );
     r(0) = 10;
-    r(4) = 210;
-    r(5) = 3.00;
+    r(4) = 200;
+    r(5) = 2.00;
     
 
 
@@ -132,11 +132,12 @@ int main( )
     //ocp.subjectTo( AT_END, XB == 50 );
     ocp.subjectTo( f );
     ocp.subjectTo( -3*M_PI/180 <= alpha_f <= 3*M_PI/180);
+    ocp.subjectTo( -3*M_PI/180 <= alpha_r <= 3*M_PI/180);
     //ocp.subjectTo( AT_START, uB == 7);
     //ocp.subjectTo( AT_END, uB == 10);
     //ocp.subjectTo( AT_START, torque == 0 )
     //ocp.subjectTo( f );
-    ocp.subjectTo( -20000.0 <= torque <= 20000.0 );
+    ocp.subjectTo( -2000.0 <= torque <= 2000.0 );
     //ocp.subjectTo( R == 0.0 );
     ocp.subjectTo( -0.5 <= delta <= 0.5 );
 
@@ -184,23 +185,28 @@ int main( )
 
     // ... AND PLOT THE RESULTS
     // ------------------------
-    VariablesGrid diffStates;
+    VariablesGrid diffStates, intermediateStates;
     
     sim.getProcessDifferentialStates( diffStates );
+    sim.getProcessIntermediateStates( intermediateStates );
     
     VariablesGrid feedbackControl;
     sim.getFeedbackControl( feedbackControl );
 
-    GnuplotWindow window;
-        window.addSubplot( diffStates(0),   "Body Velocity [m/s]" );
-        window.addSubplot( diffStates(1),   "Lateral Velocity [m/s]" );
-        window.addSubplot( diffStates(2),   "Yaw Velocity [rad/s]" );
-        window.addSubplot( diffStates(3),   "Yaw [rad]" );
-        window.addSubplot( diffStates(4), "Body Position X [m]");
-        window.addSubplot( diffStates(5), "Body Position Y [m]");
-        window.addSubplot( feedbackControl(0), "delta (rad)" );
-        window.addSubplot( feedbackControl(1),     "torque (Nm)" );
-    window.plot( );
+    GnuplotWindow stateWindow, controlWindow, intermediateWindow;
+        stateWindow.addSubplot( diffStates(0),   "Body Velocity [m/s]" );
+        stateWindow.addSubplot( diffStates(1),   "Lateral Velocity [m/s]" );
+        stateWindow.addSubplot( diffStates(2),   "Yaw Velocity [rad/s]" );
+        stateWindow.addSubplot( diffStates(3),   "Yaw [rad]" );
+        stateWindow.addSubplot( diffStates(4), "Body Position X [m]");
+        stateWindow.addSubplot( diffStates(5), "Body Position Y [m]");
+        controlWindow.addSubplot( feedbackControl(0), "delta (rad)" );
+        controlWindow.addSubplot( feedbackControl(1),     "torque (Nm)" );
+        intermediateWindow.addSubplot( intermediateStates(0), "Front Slip" );
+        intermediateWindow.addSubplot( intermediateStates(1), "Rear Slip" );
+    stateWindow.plot( );
+    controlWindow.plot( );
+    intermediateWindow.plot( );
 
     return 0;
 }
