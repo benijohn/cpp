@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/bicycleModel.dir/bicycleModel.cpp.o"
-  "../bicycleModel.pdb"
   "../bicycleModel"
+  "../bicycleModel.pdb"
+  "CMakeFiles/bicycleModel.dir/bicycleModel.cpp.o"
 )
 
 # Per-language clean rules from dependency scanning.

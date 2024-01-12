@@ -11,11 +11,6 @@ set(CMAKE_CXX_COMPILER_ID "GNU")
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "../."
-  "/home/benjamin/workspace/libraries/ACADOtoolkit"
-  "/home/benjamin/workspace/libraries/ACADOtoolkit/acado"
-  "/home/benjamin/workspace/libraries/ACADOtoolkit/external_packages"
-  "/home/benjamin/workspace/libraries/ACADOtoolkit/external_packages/qpOASES-3.2.0/include"
-  "/home/benjamin/workspace/libraries/ACADOtoolkit/build"
   )
 
 # Targets to which this target links.
