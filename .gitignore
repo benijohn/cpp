@@ -1,11 +1,17 @@
 .vscode/*
 
+# Virtual environments stuff 
+.venv/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 
 # C extensions
 *.so
+
+# acados specific stuff
+c_generated_code/
 
 # Distribution / packaging
 bin/
