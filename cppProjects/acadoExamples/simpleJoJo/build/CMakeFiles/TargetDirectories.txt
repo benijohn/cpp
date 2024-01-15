@@ -1,3 +1,0 @@
-/home/benjamin/workspace/projects/cpp/cppProjects/acadoExamples/simpleJoJo/build/CMakeFiles/rebuild_cache.dir
-/home/benjamin/workspace/projects/cpp/cppProjects/acadoExamples/simpleJoJo/build/CMakeFiles/simpleJoJo.dir
-/home/benjamin/workspace/projects/cpp/cppProjects/acadoExamples/simpleJoJo/build/CMakeFiles/edit_cache.dir

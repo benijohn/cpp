@@ -1,3 +1,0 @@
-/home/benjamin/workspace/projects/cpp/cppProjects/acadoExamples/simpleRocket/build/CMakeFiles/rebuild_cache.dir
-/home/benjamin/workspace/projects/cpp/cppProjects/acadoExamples/simpleRocket/build/CMakeFiles/simpleRocket.dir
-/home/benjamin/workspace/projects/cpp/cppProjects/acadoExamples/simpleRocket/build/CMakeFiles/edit_cache.dir
