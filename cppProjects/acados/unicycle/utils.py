@@ -37,6 +37,12 @@ def plot_robot(
     Tf = shooting_nodes[N_sim - 1]
     t = shooting_nodes
 
+    print(X_true)
+    print(N_sim)
+    print(Tf)
+    print(t)
+
+
     Ts = t[1] - t[0]
     if WITH_ESTIMATION:
         N_mhe = N_sim - X_est.shape[0]

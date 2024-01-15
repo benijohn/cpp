@@ -1,37 +1,37 @@
 from acados_template import AcadosOcp, AcadosOcpSolver, AcadosSimSolver
-from vehicle_model import export_robot_model
+from vehicle_model import export_vehicle_model
 import numpy as np
 import scipy.linalg
 from utils import plot_robot
 import pdb
 
 
-X0 = np.array([10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])  # Intitalize the states [x,y,v,th,th_d]
+X0 = np.array([10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])  # Intitalize the states [x,y,v,th,th_d]
 N_horizon = 50  # Define the number of discretization steps
 T_horizon = 2.0  # Define the prediction horizon
 delta_max = 0.001  # Define the max force allowed
 delta_min = -0.001
-T_max = 1000.0
-T_min = -1000.0
+trq_max = 1000.0
+trq_min = -1000.0
 
 
 def create_ocp_solver_description() -> AcadosOcp:
     # create ocp object to formulate the OCP
     ocp = AcadosOcp()
 
-    model = export_robot_model()
+    model = export_vehicle_model()
     ocp.model = model
     nx = model.x.size()[0]
     nu = model.u.size()[0]
-    nz = model.z.size()[0]
+    # nz = model.z.size()[0]
     ny = nx + nu
 
     # set dimensions
     ocp.dims.N = N_horizon
 
     # set cost
-    Q_mat = 2 * np.diag([1e3, 1e3, 0.0, 0.0, 0.0, 0.0, 0.0])  # [x,y,x_d,y_d,th,th_d]
-    R_mat = 2 * 5 * np.diag([1e-1, 1e-2])
+    Q_mat = 2 * np.diag([1e-1, 0.0, 0.0, 1e-2, 0.0, 0.0, 0.0, 0.0])  # [x,y,x_d,y_d,th,th_d]
+    R_mat = 2 * 5 * np.diag([1e-2, 0.0])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
@@ -44,7 +44,7 @@ def create_ocp_solver_description() -> AcadosOcp:
 
     ocp.cost.Vx = np.zeros((ny, nx))
     ocp.cost.Vx[:nx, :nx] = np.eye(nx)
-    ocp.cost.Vz = np.zeros((nz,nz))
+    # ocp.cost.Vz = np.zeros((nz,nz))
 
     Vu = np.zeros((ny, nu))
     Vu[nx : nx + nu, 0:nu] = np.eye(nu)
@@ -56,25 +56,26 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.cost.yref_e = np.zeros((ny_e,))
 
     # set constraints
-    ocp.constraints.lbu = np.array([delta_min, T_min])
-    ocp.constraints.ubu = np.array([delta_max, T_max])
-    ocp.constraints.idxbu = np.array([0])
+    ocp.constraints.lbu = np.array([delta_min, trq_min])
+    ocp.constraints.ubu = np.array([delta_max, trq_max])
+    ocp.constraints.idxbu = np.array([0,1])
 
     ocp.constraints.x0 = X0
 
     # set options
-    ocp.solver_options.qp_solver = "PARTIAL_CONDENSING_HPIPM"  # FULL_CONDENSING_QPOASES
+    ocp.solver_options.qp_solver = "FULL_CONDENSING_QPOASES"  # FULL_CONDENSING_QPOASES was PARTIAL_CONDENSING_HPIPM
     ocp.solver_options.hessian_approx = "GAUSS_NEWTON"  # 'GAUSS_NEWTON', 'EXACT'
-    ocp.solver_options.integrator_type = "IRK"
+    ocp.solver_options.integrator_type = "ERK" # was IRK
     ocp.solver_options.nlp_solver_type = "SQP"  # SQP_RTI, SQP
     ocp.solver_options.nlp_solver_max_iter = 400
+    ocp.solver_options.print_level = 10
     # ocp.solver_options.levenberg_marquardt = 1e-2
 
     # set parameters
-    Cf = 420
-    Cr = 420
-    Jz = 1000
-    ocp.parameter_values = np.array([Cf, Cr, Jz])
+    # Cf = 420
+    # Cr = 420
+    # Jz = 1000
+    # ocp.parameter_values = np.array([Cf, Cr, Jz])
 
     # set prediction horizon
     ocp.solver_options.tf = T_horizon
@@ -113,26 +114,27 @@ def closed_loop_simulation():
 
     # closed loop
     for i in range(Nsim):
-
+        print("i="+str(i))
         # set initial state constraint
         acados_ocp_solver.set(0, "lbx", xcurrent)
         acados_ocp_solver.set(0, "ubx", xcurrent)
 
         # update yref
         for j in range(N_horizon):
-            yref = np.array([10, 0, 0, 100, 0, 0, 0, 0, 0])
+            yref = np.array([10, 0, 0, 100, 0, 0, 0, 0, 0, 0])
             acados_ocp_solver.set(j, "yref", yref)
-        yref_N = np.array([10, 0, 0, 10, 0, 0, 0])
+        yref_N = np.array([10, 0, 0, 100, 0, 0, 0, 0])
         acados_ocp_solver.set(N_horizon, "yref", yref_N)
 
         # solve ocp
         status = acados_ocp_solver.solve()
 
+        print("solver status: " + str(status))
         if status not in [0, 2]:
             acados_ocp_solver.print_statistics()
             plot_robot(
                 np.linspace(0, T_horizon / N_horizon * i, i + 1),
-                F_max,
+                trq_max,
                 simU[:i, :],
                 simX[: i + 1, :],
             )
@@ -162,7 +164,7 @@ def closed_loop_simulation():
 
     # plot results
     plot_robot(
-        np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1), [F_max, None], simU, simX
+        np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1), [trq_max, None], simU, simX
     )
 
 
