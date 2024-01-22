@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from acados_template import latexify_plot
 
-def plot_robot(
+def plot_results(
     shooting_nodes,
     u_max,
     U,
@@ -37,17 +37,17 @@ def plot_robot(
     Tf = shooting_nodes[N_sim - 1]
     t = shooting_nodes
     
-    print(X_true)
-    print(N_sim)
-    print(Tf)
-    print(t)
+    # print(X_true)
+    # print(N_sim)
+    # print(Tf)
+    # print(t)
 
     Ts = t[1] - t[0]
     if WITH_ESTIMATION:
         N_mhe = N_sim - X_est.shape[0]
         t_mhe = np.linspace(N_mhe * Ts, Tf, N_sim - N_mhe)
 
-    control_lables = ["$F$", "$T$"]
+    control_lables = ["$d_delta$", "$d_T$", "d_Mz"]
     for i in range(nu):
         plt.subplot(nx + nu, 1, i+1)
         # line, = plt.step(t, np.append([U[0]], U))
@@ -67,7 +67,7 @@ def plot_robot(
             plt.ylim([-1.2 * u_max[i], 1.2 * u_max[i]])
         plt.grid()
 
-    states_lables = ["$x$", "$y$", "$v$", "$theta$", "$thetad$"]
+    states_lables = ["$V$", "$v$", "$r$", "$X$", "$Y$", "$Psi$", "$delta$", "$trq$", "$M_z$"]
     for i in range(nx):
         plt.subplot(nx + nu, 1, i + nu+1)
         (line,) = plt.plot(t, X_true[:, i], label="true")

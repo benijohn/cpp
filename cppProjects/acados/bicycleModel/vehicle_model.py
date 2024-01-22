@@ -16,13 +16,15 @@ def export_vehicle_model() -> AcadosModel:
     Psi = SX.sym("Psi")
     delta = SX.sym("delta")
     trq = SX.sym("trq")
+    M_z = SX.sym("M_z")
 
-    x = vertcat(V,v,r,X,Y,Psi,delta,trq)
+    x = vertcat(V,v,r,X,Y,Psi,delta,trq,M_z)
 
     #controls
     d_delta = SX.sym("d_delta")
     d_trq = SX.sym("d_trq")
-    u = vertcat(d_delta,d_trq)
+    d_Mz = SX.sym("d_Mz")
+    u = vertcat(d_delta,d_trq,d_Mz)
 
     # xdot
     V_dot = SX.sym("V_dot")
@@ -33,8 +35,9 @@ def export_vehicle_model() -> AcadosModel:
     Psi_dot = SX.sym("Psi_dot")
     delta_dot = SX.sym("delta_dot")
     trq_dot = SX.sym("trq_dot")
+    Mz_dot = SX.sym("Mz_dot")
 
-    xdot = vertcat(V_dot,v_dot,r_dot,X_dot,Y_dot,Psi_dot,delta_dot,trq_dot)
+    xdot = vertcat(V_dot,v_dot,r_dot,X_dot,Y_dot,Psi_dot,delta_dot,trq_dot,Mz_dot)
 
     # parameters
     mass =1350
@@ -72,7 +75,8 @@ def export_vehicle_model() -> AcadosModel:
                      V*sin(Psi) + v*cos(Psi), # Y 
                      r, # yaw 
                      d_delta,
-                     d_trq)
+                     d_trq,
+                     d_Mz)
 
     f_impl = xdot - f_expl
 
