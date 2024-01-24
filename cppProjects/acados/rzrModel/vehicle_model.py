@@ -16,15 +16,15 @@ def export_vehicle_model() -> AcadosModel:
     Psi = SX.sym("Psi")
     delta = SX.sym("delta")
     trq = SX.sym("trq")
-    M_z = SX.sym("M_z")
+    # M_z = SX.sym("M_z")
 
-    x = vertcat(V,v,r,X,Y,Psi,delta,trq,M_z)
+    x = vertcat(V,v,r,X,Y,Psi,delta,trq)
 
     #controls
     d_delta = SX.sym("d_delta")
     d_trq = SX.sym("d_trq")
-    d_Mz = SX.sym("d_Mz")
-    u = vertcat(d_delta,d_trq,d_Mz)
+    # d_Mz = SX.sym("d_Mz")
+    u = vertcat(d_delta,d_trq)
 
     # xdot
     V_dot = SX.sym("V_dot")
@@ -35,9 +35,9 @@ def export_vehicle_model() -> AcadosModel:
     Psi_dot = SX.sym("Psi_dot")
     delta_dot = SX.sym("delta_dot")
     trq_dot = SX.sym("trq_dot")
-    Mz_dot = SX.sym("Mz_dot")
+    # Mz_dot = SX.sym("Mz_dot")
 
-    xdot = vertcat(V_dot,v_dot,r_dot,X_dot,Y_dot,Psi_dot,delta_dot,trq_dot,Mz_dot)
+    xdot = vertcat(V_dot,v_dot,r_dot,X_dot,Y_dot,Psi_dot,delta_dot,trq_dot)
 
     # parameters
     mass =1350
@@ -69,14 +69,13 @@ def export_vehicle_model() -> AcadosModel:
     #                  V*cos(Psi) - v*sin(Psi), V*sin(Psi) + v*cos(Psi), r, delta_dot)
     
     f_expl = vertcat(((trq/r_tire) - (1/2)*rho*Cd*Af*V**2 - mass*g*Cr_drag)/mass + r*v,  # long acc = driving force - aero_drag - rolling_drag
-                     (-Cf*alpha_f -Cr*alpha_r)/mass - r*V, # lateral acc
-                     (-lf*Cf*alpha_f + lr*Cr*alpha_r + M_z)/Jz, # yaw acc
+                     (-Cf*alpha_f- Cr*alpha_r)/mass - r*V, # lateral acc
+                     (-lf*Cf*alpha_f + lr*Cr*alpha_r)/Jz, # yaw acc
                      V*cos(Psi) - v*sin(Psi), # X 
                      V*sin(Psi) + v*cos(Psi), # Y 
                      r, # yaw 
                      d_delta,
-                     d_trq,
-                     d_Mz)
+                     d_trq)
 
     f_impl = xdot - f_expl
 

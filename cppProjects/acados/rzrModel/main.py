@@ -6,26 +6,26 @@ from utils import plot_results
 import pdb
 
 
-X0 = np.array([10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])  # Intitalize the states [x,y,v,th,th_d]
+X0 = np.array([20.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])  # Intitalize the states [x,y,v,th,th_d]
 N_horizon = 50  # Define the number of discretization steps
 T_horizon = 2.0  # Define the prediction horizon
 d_delta_max = 1.0  # Define the max force allowed
 d_delta_min = -1.0
 d_trq_max = 400.0
 d_trq_min = -400.0
-d_mz_min = -1000.0
-d_mz_max = 1000.0
+# d_mz_min = -4000.0
+# d_mz_max = 4000.0
 V_min = 3.0
 V_max = 25.0
 delta_min = -0.2
 delta_max = 0.2
 trq_min = -1000
 trq_max = 1000
-mz_min = -1000 
-mz_max = 1000
+# mz_min = -1000 
+# mz_max = 1000
 
-x_min = np.array([V_min, -10, -10, -10, -100, -100, delta_min, trq_min, mz_min])
-x_max = np.array([V_max, 10, 10, 1000, 100, 100, delta_max, trq_max, mz_max])
+x_min = np.array([V_min, -10, -10, -10, -100, -100, delta_min, trq_min])
+x_max = np.array([V_max, 10, 10, 1000, 100, 100, delta_max, trq_max])
 
 
 
@@ -44,8 +44,8 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.dims.N = N_horizon
 
     # set cost
-    Q_mat = 2 * np.diag([100e-1, 0.0, 0.0, 1e-2, 20e-1, 0.0, 1e-3/delta_max, 1e-1/trq_max, 1e-1/mz_max])  # [V, v, r, X, Y, Psi, delta, trq, mz]
-    R_mat = 2 * np.diag([1e-3/d_delta_max, 1e-1/d_trq_max, 1e-1/d_mz_max])
+    Q_mat = 2 * np.diag([100e-1, 0.0, 0.0, 1e-2, 50e-1, 0.0, 1e-3/delta_max, 5e-2/trq_max])  # [V, v, r, X, Y, Psi, delta, trq, mz]
+    R_mat = 2 * np.diag([1e-3/d_delta_max, 1e-2/d_trq_max])
     # R_mat = 2 * 5 * np.diag([1e-2, 1e-1, 1e-2])
 
     ocp.cost.cost_type = "LINEAR_LS"
@@ -71,15 +71,15 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.cost.yref_e = np.zeros((ny_e,))
 
     # set constraints
-    ocp.constraints.lbu = np.array([d_delta_min, d_trq_min, d_mz_min])
-    ocp.constraints.ubu = np.array([d_delta_max, d_trq_max, d_mz_max])
+    ocp.constraints.lbu = np.array([d_delta_min, d_trq_min])
+    ocp.constraints.ubu = np.array([d_delta_max, d_trq_max])
     # print(ocp.constraints.idxbu)
-    ocp.constraints.idxbu = np.array([0,1,2])
+    ocp.constraints.idxbu = np.array([0,1])
     # print(ocp.constraints.idxbu)
  
     # ocp.dims.nbx = nx
     # print(ocp.constraints.idxbx)
-    ocp.constraints.idxbx = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8])
+    ocp.constraints.idxbx = np.array([0, 1, 2, 3, 4, 5, 6, 7])
     ocp.constraints.lbx = x_min
     ocp.constraints.ubx = x_max
     # ocp.constraints.idxbx = np.array([0, 1])
@@ -154,11 +154,13 @@ def closed_loop_simulation():
         acados_ocp_solver.set(0, "lbx", xcurrent)
         acados_ocp_solver.set(0, "ubx", xcurrent)
 
+        # This seems like where we might call the planner and get the new reference values.
+
         # update yref
         for j in range(N_horizon):
-            yref = np.array([10, 0, 0, 100, 10, 0, 0, 0, 0, 0, 0, 0])
+            yref = np.array([20, 0, 0, 100, 10, 0, 0, 0, 0, 0])
             acados_ocp_solver.set(j, "yref", yref)
-        yref_N = np.array([10, 0, 0, 100, 10, 0, 0, 0, 0])
+        yref_N = np.array([20, 0, 0, 100, 10, 0, 0, 0])
         acados_ocp_solver.set(N_horizon, "yref", yref_N)
 
         # solve ocp
@@ -199,7 +201,7 @@ def closed_loop_simulation():
 
     # plot results
     plot_results(
-        np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1), [d_delta_max, d_trq_max, d_mz_max], simU, simX
+        np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1), [d_delta_max, d_trq_max], simU, simX
     )
 
 

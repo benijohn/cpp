@@ -47,7 +47,7 @@ def plot_results(
         N_mhe = N_sim - X_est.shape[0]
         t_mhe = np.linspace(N_mhe * Ts, Tf, N_sim - N_mhe)
 
-    control_lables = ["$d_delta$", "$d_T$", "d_Mz"]
+    control_lables = ["$d_delta$", "$d_T$"]
     for i in range(nu):
         plt.subplot(nx + nu, 1, i+1)
         # line, = plt.step(t, np.append([U[0]], U))
@@ -67,7 +67,7 @@ def plot_results(
             plt.ylim([-1.2 * u_max[i], 1.2 * u_max[i]])
         plt.grid()
 
-    states_lables = ["$V$", "$v$", "$r$", "$X$", "$Y$", "$Psi$", "$delta$", "$trq$", "$M_z$"]
+    states_lables = ["$V$", "$v$", "$r$", "$X$", "$Y$", "$Psi$", "$delta$", "$trq$"]
     for i in range(nx):
         plt.subplot(nx + nu, 1, i + nu+1)
         (line,) = plt.plot(t, X_true[:, i], label="true")
@@ -87,40 +87,3 @@ def plot_results(
 
     if plt_show:
         plt.show()
-
-    for i in range(nu):
-        plt.subplot(nu + nu, 1, i+1)  
-        (line,) = plt.step(t, np.append([U[0, i]], U[:, i]))
-        # (line,) = plt.step(t, np.append([U[0, 0]], U[:, 0]))
-        if X_true_label is not None:
-            line.set_label(X_true_label)
-        else:
-            line.set_color("r")
-        # plt.title('closed-loop simulation')
-        plt.ylabel(control_lables[i])
-        plt.xlabel("$t$")
-        if u_max[i] is not None:
-            plt.hlines(u_max[i], t[0], t[-1], linestyles="dashed", alpha=0.7)
-            plt.hlines(-u_max[i], t[0], t[-1], linestyles="dashed", alpha=0.7)
-            plt.ylim([-1.2 * u_max[i], 1.2 * u_max[i]])
-        plt.grid()
-
-    for i in range(nu):
-        plt.subplot(nu + nu, 1, i + nu+1)
-        (line,) = plt.plot(t, X_true[:, i+6], label="true")
-        if X_true_label is not None:
-            line.set_label(X_true_label)
-
-        if WITH_ESTIMATION:
-            plt.plot(t_mhe, X_est[:, i+6], "--", label="estimated")
-            plt.plot(t, Y_measured[:, i+6], "x", label="measured")
-
-        plt.ylabel(states_lables[i+6])
-        plt.xlabel("$t$")
-        plt.grid()
-        plt.legend(loc=1)
-
-    plt.subplots_adjust(left=None, bottom=None, right=None, top=None, hspace=0.4)    
-
-    if plt_show:
-        plt.show()      
