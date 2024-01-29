@@ -40,9 +40,10 @@ for i in range(num_obstacles):
     mapDense[N<obr[i]] = 100
 
 # N1 = np.sqrt(np.square(45-x_coordinates) + np.square(30-y_coordinates))
-np.savetxt("map.csv", mapDense, delimiter=",")
-np.savetxt("x_coord.csv", x_coordinates, delimiter=',')
-np.savetxt("y_coord.csv", y_coordinates, delimiter=',')
+# np.savetxt("map.csv", mapDense, delimiter=",")
+# np.savetxt("x_coord.csv", x_coordinates, delimiter=',')
+# np.savetxt("y_coord.csv", y_coordinates, delimiter=',')
+np.save("map.npy", mapDense)
 print(time.time()-t)
 # t = time.time()
 # #mapDense[np.where(N1<27)] = 1
