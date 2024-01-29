@@ -4,28 +4,32 @@ import numpy as np
 import scipy.linalg
 from utils import plot_results
 import pdb
+from mppiPlanner import planTrajectory
+import time
+import matplotlib.pyplot as plt
 
 
-X0 = np.array([20.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])  # Intitalize the states [x,y,v,th,th_d]
-N_horizon = 50  # Define the number of discretization steps
-T_horizon = 2.0  # Define the prediction horizon
-d_delta_max = 1.0  # Define the max force allowed
-d_delta_min = -1.0
-d_trq_max = 400.0
-d_trq_min = -400.0
+X0 = np.array([10.0, 0.0, 0.0, 10.0, 45.0, 0.0, 0.0, 0.0])  # Intitalize the states [x,y,v,th,th_d]
+N_horizon = 20  # Define the number of discretization steps
+T_horizon = 1.0  # Define the prediction horizon
+dt = T_horizon/N_horizon # size of time step
+d_delta_max = 0.4  # Define the max force allowed
+d_delta_min = -0.4
+d_trq_max = 8000.0
+d_trq_min = -8000.0
 # d_mz_min = -4000.0
 # d_mz_max = 4000.0
 V_min = 3.0
 V_max = 25.0
-delta_min = -0.2
-delta_max = 0.2
-trq_min = -1000
-trq_max = 1000
+delta_min = -0.25
+delta_max = 0.25
+trq_min = -4000
+trq_max = 4000
 # mz_min = -1000 
 # mz_max = 1000
 
 x_min = np.array([V_min, -10, -10, -10, -100, -100, delta_min, trq_min])
-x_max = np.array([V_max, 10, 10, 1000, 100, 100, delta_max, trq_max])
+x_max = np.array([V_max, 10, 10, 1000, 150, 100, delta_max, trq_max])
 
 
 
@@ -44,7 +48,7 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.dims.N = N_horizon
 
     # set cost
-    Q_mat = 2 * np.diag([100e-1, 0.0, 0.0, 1e-2, 50e-1, 0.0, 1e-3/delta_max, 5e-2/trq_max])  # [V, v, r, X, Y, Psi, delta, trq, mz]
+    Q_mat = 2 * np.diag([10e-1, 1e-2, 1e-2, 100e-2, 500e-1, 1e-2, 1e-3/delta_max, 1e-2/trq_max])  # [V, v, r, X, Y, Psi, delta, trq, mz]
     R_mat = 2 * np.diag([1e-3/d_delta_max, 1e-2/d_trq_max])
     # R_mat = 2 * 5 * np.diag([1e-2, 1e-1, 1e-2])
 
@@ -91,7 +95,11 @@ def create_ocp_solver_description() -> AcadosOcp:
 
     # ocp.constraints.idxbx = np.array([0,1,2,3,4,5,6,7])
 
+    # Non-Linear Constraints
+    # obs1 = model.x
+    # ocp.constraints.con_h_expr
 
+    
     ocp.constraints.x0 = X0
 
     # set options
@@ -119,6 +127,23 @@ def create_ocp_solver_description() -> AcadosOcp:
 
 def closed_loop_simulation():
 
+    sizeElite = 100
+    map = np.genfromtxt("map.csv", delimiter=',')
+
+    mapLength = 300
+    mapHeight = 120
+    gridSize = 0.1
+
+    x = np.arange(0,mapLength,gridSize)
+    y = np.arange(0,mapHeight,gridSize)
+
+    XG = 250
+    YG = 60
+
+    x_coordinates, y_coordinates = np.meshgrid(x,y)
+    fig1 = plt.figure()
+    plt.pcolor(x_coordinates, y_coordinates, map)
+
     # create solvers
     ocp = create_ocp_solver_description()
     acados_ocp_solver = AcadosOcpSolver(
@@ -129,9 +154,11 @@ def closed_loop_simulation():
     )
 
     # prepare simulation
-    Nsim = 80
+    Nsim = 200
     nx = ocp.model.x.size()[0]
     nu = ocp.model.u.size()[0]
+    print(nx)
+    print(nu)
 
     simX = np.ndarray((Nsim + 1, nx))
     simU = np.ndarray((Nsim, nu))
@@ -147,25 +174,44 @@ def closed_loop_simulation():
     for stage in range(N_horizon):
         acados_ocp_solver.set(stage, "u", np.zeros((nu,)))
 
+    # ref_traj = np.genfromtxt("refTraj.csv", delimiter=',')
+    # ref_traj = planTrajectory(x0=xcurrent, preview=3*T_horizon, dt=dt, num_samples=6000, map=map, x=x, y=y, sizeElite=sizeElite, plot=False)   
+    # print(ref_traj)
+    # print(ref_traj.shape)
     # closed loop
     for i in range(Nsim):
         # print("i="+str(i))
         # set initial state constraint
         acados_ocp_solver.set(0, "lbx", xcurrent)
         acados_ocp_solver.set(0, "ubx", xcurrent)
-
         # This seems like where we might call the planner and get the new reference values.
-
+        # acados_ocp_solver.set("con_h_expr", )
         # update yref
+        t = time.time()
+        ref_traj = planTrajectory(x0=xcurrent, preview=3*T_horizon, dt=dt, num_samples=3000, map=map, x=x, y=y, XG=XG, YG=YG, sizeElite=sizeElite, plot=False)
+        #print(ref_traj[:,1])
+        # print(time.time()-t)
         for j in range(N_horizon):
-            yref = np.array([20, 0, 0, 100, 10, 0, 0, 0, 0, 0])
+            V_ref = ref_traj[0,j]
+            v_ref = ref_traj[1,j]
+            r_ref = ref_traj[2,j]
+            X_ref = ref_traj[3,j]
+            Y_ref = ref_traj[4,j]
+            Psi_ref = ref_traj[5,j]
+            yref = np.array([V_ref, v_ref, r_ref, X_ref, Y_ref, Psi_ref, 0, 0, 0, 0])
             acados_ocp_solver.set(j, "yref", yref)
-        yref_N = np.array([20, 0, 0, 100, 10, 0, 0, 0])
+        V_ref = ref_traj[0,N_horizon]
+        v_ref = ref_traj[1,N_horizon]
+        r_ref = ref_traj[2,N_horizon]
+        X_ref = ref_traj[3,N_horizon]
+        Y_ref = ref_traj[4,N_horizon]  
+        Psi_ref = ref_traj[5,N_horizon]    
+        yref_N = np.array([V_ref, v_ref, r_ref, XG, YG, Psi_ref, 0, 0])
         acados_ocp_solver.set(N_horizon, "yref", yref_N)
 
         # solve ocp
         status = acados_ocp_solver.solve()
-
+        # print(time.time()-t)
         # print("solver status: " + str(status))
         if status not in [0, 2]:
             acados_ocp_solver.print_statistics()
@@ -197,12 +243,25 @@ def closed_loop_simulation():
 
         # update state
         xcurrent = acados_integrator.get("x")
+        #print(xcurrent)
         simX[i + 1, :] = xcurrent
 
     # plot results
+        
+    plt.plot(simX[:,3],simX[:,4],color='g',alpha=1,linewidth=3) 
+    ax = plt.gca()
+    ax.set_aspect('equal', adjustable='box')   
     plot_results(
         np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1), [d_delta_max, d_trq_max], simU, simX
     )
+    #print(simX)
+
+    # x_coordinates, y_coordinates = np.meshgrid(x,y)
+    # fig = plt.figure()
+    # plt.pcolor(x_coordinates, y_coordinates, map)
+    # plt.plot(simX[:,3],simX[:,4],color='g',alpha=1)
+    # plt.show()
+   
 
 
 if __name__ == "__main__":

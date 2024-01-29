@@ -1,5 +1,5 @@
 from acados_template import AcadosModel
-from casadi import SX, vertcat, sin, cos, atan
+from casadi import SX, vertcat, sin, cos, atan, sqrt
 
 # Reference for model equations:
 # http://users.isr.ist.utl.pt/~jag/publications/08-JETC-RCarona-vcontrol.pdf
@@ -55,8 +55,13 @@ def export_vehicle_model() -> AcadosModel:
 
     g = 9.80655
     Cr_drag = 0.018
-    # p = vertcat([Cf, Cr, Jz])
-    p = []
+    p = vertcat([])
+    # num_obstacles = SX.sym("num_obstacles")
+    # obstacles = SX.sym("obstacles", num_obstacles, 3)
+    # obs_constraints = vertcat()
+    # for i in range(num_obstacles):
+    #     obs_constraints = vertcat(obs_constraints,sqrt((X-obstacles[i,0])**2+(Y-obstacles[i,1]**2)) > obstacles[i,3])
+    # p = vertcat(num_obstacles,obstacles)
 
     # algebraic variables
     alpha_f = atan((v+lf*r)/V) -delta
@@ -80,7 +85,7 @@ def export_vehicle_model() -> AcadosModel:
     f_impl = xdot - f_expl
 
     model = AcadosModel()
-
+    #model.con_h_expr = obs_constraints
     model.f_impl_expr = f_impl
     model.f_expl_expr = f_expl
     model.x = x

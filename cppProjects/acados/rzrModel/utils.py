@@ -48,6 +48,7 @@ def plot_results(
         t_mhe = np.linspace(N_mhe * Ts, Tf, N_sim - N_mhe)
 
     control_lables = ["$d_delta$", "$d_T$"]
+    fig = plt.figure()
     for i in range(nu):
         plt.subplot(nx + nu, 1, i+1)
         # line, = plt.step(t, np.append([U[0]], U))
