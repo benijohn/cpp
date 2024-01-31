@@ -20,9 +20,9 @@ d_trq_min = -8000.0
 # d_mz_min = -4000.0
 # d_mz_max = 4000.0
 V_min = 3.0
-V_max = 25.0
-delta_min = -0.25
-delta_max = 0.25
+V_max = 12.0
+delta_min = -0.45
+delta_max = 0.45
 trq_min = -4000
 trq_max = 4000
 # mz_min = -1000 
@@ -128,7 +128,7 @@ def create_ocp_solver_description() -> AcadosOcp:
 def closed_loop_simulation():
 
     sizeElite = 100
-    map = np.genfromtxt("map.csv", delimiter=',')
+    map = np.load("map.npy")
 
     mapLength = 300
     mapHeight = 120
@@ -137,8 +137,8 @@ def closed_loop_simulation():
     x = np.arange(0,mapLength,gridSize)
     y = np.arange(0,mapHeight,gridSize)
 
-    XG = 250
-    YG = 60
+    XG = 280
+    YG = 45
 
     x_coordinates, y_coordinates = np.meshgrid(x,y)
     fig1 = plt.figure()
@@ -154,7 +154,7 @@ def closed_loop_simulation():
     )
 
     # prepare simulation
-    Nsim = 200
+    Nsim = 250
     nx = ocp.model.x.size()[0]
     nu = ocp.model.u.size()[0]
     print(nx)
@@ -188,7 +188,7 @@ def closed_loop_simulation():
         # acados_ocp_solver.set("con_h_expr", )
         # update yref
         t = time.time()
-        ref_traj = planTrajectory(x0=xcurrent, preview=3*T_horizon, dt=dt, num_samples=3000, map=map, x=x, y=y, XG=XG, YG=YG, sizeElite=sizeElite, plot=False)
+        ref_traj = planTrajectory(x0=xcurrent, preview=3*T_horizon, dt=dt, num_samples=4000, map=map, x=x, y=y, XG=XG, YG=YG, sizeElite=sizeElite, plot=True)
         #print(ref_traj[:,1])
         # print(time.time()-t)
         for j in range(N_horizon):
@@ -206,7 +206,7 @@ def closed_loop_simulation():
         X_ref = ref_traj[3,N_horizon]
         Y_ref = ref_traj[4,N_horizon]  
         Psi_ref = ref_traj[5,N_horizon]    
-        yref_N = np.array([V_ref, v_ref, r_ref, XG, YG, Psi_ref, 0, 0])
+        yref_N = np.array([V_ref, v_ref, r_ref, X_ref, Y_ref, Psi_ref, 0, 0])
         acados_ocp_solver.set(N_horizon, "yref", yref_N)
 
         # solve ocp
@@ -230,8 +230,24 @@ def closed_loop_simulation():
                 f"acados acados_ocp_solver returned status {status} in closed loop instance {i} with {xcurrent}"
             )
         simU[i, :] = acados_ocp_solver.get(0, "u")
-
+        print(simU[i,:])
         # simulate system
+        # add loop to simulate entire plan
+        # for k in range(N_horizon):
+        #     simU[k, :] = acados_ocp_solver.get(k, "u")
+        #     acados_integrator.set("x", xcurrent)
+        #     acados_integrator.set("u", simU[k, :])
+
+        #     status = acados_integrator.solve()
+        #     if status != 0:
+        #         raise Exception(
+        #             f"acados integrator returned status {status} in closed loop instance {i}"
+        #         )
+
+        #     # update state
+        #     xcurrent = acados_integrator.get("x")
+        #     #print(xcurrent)
+        #     simX[k + 1, :] = xcurrent
         acados_integrator.set("x", xcurrent)
         acados_integrator.set("u", simU[i, :])
 
@@ -245,6 +261,7 @@ def closed_loop_simulation():
         xcurrent = acados_integrator.get("x")
         #print(xcurrent)
         simX[i + 1, :] = xcurrent
+        print(time.time()-t)
 
     # plot results
         

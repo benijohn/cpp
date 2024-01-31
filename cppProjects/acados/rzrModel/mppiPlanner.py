@@ -58,9 +58,9 @@ def getTrajectoryCost(X,Y,V,r,map,x,y,XG,YG):
     # print(np.exp(-V).shape)
     # print(distanceToGoal.shape)
     # print(np.square(np.multiply(V,r)).shape)
-    print(np.sum(50000*np.exp(-V),axis=0))
-    print(np.sum(V,axis=0))
-    # print(np.sum(distanceToGoal,axis=0))
+    # print(np.sum(20000*np.exp(-V),axis=0))
+    # print(np.sum(V,axis=0))
+    #print(np.sum(distanceToGoal,axis=0))
     # print(np.sum(trajCost,axis=0))
     # print(np.sum(np.square(np.multiply(V,r)),axis=0))
     
