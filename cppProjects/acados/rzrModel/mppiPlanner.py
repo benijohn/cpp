@@ -51,21 +51,20 @@ def getTrajectoryCost(X,Y,V,r,map,x,y,XG,YG):
     distanceToGoal = np.sqrt(np.square(X-XG)+np.square(Y-YG))
 
     # print(distanceToGoal.min())
-    cost = trajCost + np.square(np.multiply(V,r)) + 50000*np.exp(-V) + distanceToGoal
+    cost = trajCost + np.square(np.multiply(V,r)) + 20000*np.exp(-V) + distanceToGoal
     #cost = trajCost
     intCost = np.sum(cost,axis=0)
-    # print(intCost.min())
-    # print(intCost.min())
-    # print(intCost.max())
-    # print(intCost.mean())
-    # print(distanceToGoal.min())
-    # print(distanceToGoal.max())
-    # print(distanceToGoal.mean())
-    # print(np.sum(np.square(np.multiply(V,r)),axis=0))
-    # print(np.sum(50000*np.exp(-V),axis=0))
+    # print(trajCost.shape)
+    # print(np.exp(-V).shape)
+    # print(distanceToGoal.shape)
+    # print(np.square(np.multiply(V,r)).shape)
+    print(np.sum(50000*np.exp(-V),axis=0))
+    print(np.sum(V,axis=0))
+    # print(np.sum(distanceToGoal,axis=0))
     # print(np.sum(trajCost,axis=0))
-    # print(intCost)
-    # print(distanceToGoal)
+    # print(np.sum(np.square(np.multiply(V,r)),axis=0))
+    
+    
     #totalCost = 500*distanceToGoal + intCost
     totalCost = intCost
     return totalCost    
@@ -76,7 +75,7 @@ def planTrajectory(x0, preview, dt, num_samples, map, x, y, XG, YG, sizeElite, p
     num_points = int(preview/dt)
 
     beta = 30
-    d_r = 1
+    d_r = 2
     d_V = 10
     d_v = 2
 
@@ -162,7 +161,7 @@ def planTrajectory(x0, preview, dt, num_samples, map, x, y, XG, YG, sizeElite, p
         # fig = plt.figure()
         # plt.pcolor(x_coordinates, y_coordinates, map)
         plt.plot(X[:,:100],Y[:,:100],color='k',alpha= 0.01)
-        plt.plot(Xe,Ye,color='r',alpha=0.3)
+        plt.plot(Xe,Ye,color='r',alpha=0.2)
         plt.plot(bestX,bestY,color='b')
         # print(bestV.shape)
 

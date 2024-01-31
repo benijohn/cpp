@@ -31,22 +31,22 @@ plt.pcolor(x_coordinates, y_coordinates, map)
 XG = 250
 YG = 60
 
-N=200
+N=2
 plan = np.ndarray([6,N+1])
 plan[:,0] = X0
 
 for i in range(N):
     t = time.time()
-    ref_traj = planTrajectory(x0=X0, preview=3*T_horizon, dt=dt, num_samples=6000, map=map, x=x, y=y, XG=XG, YG=YG, sizeElite=sizeElite, plot=False)
+    ref_traj = planTrajectory(x0=X0, preview=3*T_horizon, dt=dt, num_samples=6000, map=map, x=x, y=y, XG=XG, YG=YG, sizeElite=sizeElite, plot=True)
     X0 = ref_traj[:,1]
     print(time.time()-t)
     # print(X0.shape)
     # print(ref_traj.shape)
     plan[:,i+1] = X0
     
-print(plan[3,:])
-print(plan[4,:])
-print(plan[0,:])
+# print(plan[3,:])
+# print(plan[4,:])
+# print(plan[0,:])
 
 plt.plot(plan[3,:],plan[4,:],color='g',linewidth=3)
 plt.show()    
