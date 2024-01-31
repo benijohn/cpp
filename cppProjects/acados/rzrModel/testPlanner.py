@@ -23,9 +23,9 @@ gridSize = 0.1
 x = np.arange(0,mapLength,gridSize)
 y = np.arange(0,mapHeight,gridSize)
 
-# x_coordinates, y_coordinates = np.meshgrid(x,y)
-# fig1 = plt.figure()
-# plt.pcolor(x_coordinates, y_coordinates, map)
+x_coordinates, y_coordinates = np.meshgrid(x,y)
+fig1 = plt.figure()
+plt.pcolor(x_coordinates, y_coordinates, map)
 
 
 XG = 250
@@ -48,5 +48,5 @@ print(plan[3,:])
 print(plan[4,:])
 print(plan[0,:])
 
-# plt.plot(plan[3,:],plan[4,:],color='g',linewidth=3)
-# plt.show()    
+plt.plot(plan[3,:],plan[4,:],color='g',linewidth=3)
+plt.show()    

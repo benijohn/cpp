@@ -47,9 +47,11 @@ def getTrajectoryCost(X,Y,V,r,map,x,y,XG,YG):
     trajCost = np.cumsum(scipy.interpolate.interpn((y,x),map,(Y,X),bounds_error=False,fill_value=5000),axis=0)
     # timeToGoal = np.divide(np.sqrt(np.square(X[-1]-300)+np.square(Y[-1]-50)),V[-1])
     # timeToGoal[timeToGoal<0] = 1000
-    distanceToGoal = np.sqrt(np.square(X[-1]-XG)+np.square(Y[-1]-YG))
+    #distanceToGoal = np.sqrt(np.square(X[-1]-XG)+np.square(Y[-1]-YG))
+    distanceToGoal = np.sqrt(np.square(X-XG)+np.square(Y-YG))
+
     # print(distanceToGoal.min())
-    cost = trajCost + np.square(np.multiply(V,r)) + 50000*np.exp(-V)
+    cost = trajCost + np.square(np.multiply(V,r)) + 50000*np.exp(-V) + distanceToGoal
     #cost = trajCost
     intCost = np.sum(cost,axis=0)
     # print(intCost.min())
@@ -64,7 +66,8 @@ def getTrajectoryCost(X,Y,V,r,map,x,y,XG,YG):
     # print(np.sum(trajCost,axis=0))
     # print(intCost)
     # print(distanceToGoal)
-    totalCost = 500*distanceToGoal + intCost
+    #totalCost = 500*distanceToGoal + intCost
+    totalCost = intCost
     return totalCost    
 
 
@@ -92,8 +95,13 @@ def planTrajectory(x0, preview, dt, num_samples, map, x, y, XG, YG, sizeElite, p
     Y_0 = x0[4]
     Psi_0 = x0[5]
 
+    Vu = 12
+    Vl = 3
+    Vdiff = Vu-Vl
+
     # testing a sampling bounds scheme
-    V_star = (V_0-14)/22
+    # V_star = (V_0-14)/22
+    V_star = (V_0-Vl-Vdiff/2)/Vdiff
     V_ub = dt*d_V - np.tanh(V_star)*dt*d_V
     V_lb = -dt*d_V - np.tanh(V_star)*dt*d_V
     V_dot = np.random.uniform(V_lb, V_ub, [num_points, num_samples])
@@ -153,7 +161,7 @@ def planTrajectory(x0, preview, dt, num_samples, map, x, y, XG, YG, sizeElite, p
         # x_coordinates, y_coordinates = np.meshgrid(x,y)
         # fig = plt.figure()
         # plt.pcolor(x_coordinates, y_coordinates, map)
-        plt.plot(X[:,:1000],Y[:,:1000],color='k',alpha= 0.01)
+        plt.plot(X[:,:100],Y[:,:100],color='k',alpha= 0.01)
         plt.plot(Xe,Ye,color='r',alpha=0.3)
         plt.plot(bestX,bestY,color='b')
         # print(bestV.shape)
