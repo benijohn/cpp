@@ -34,55 +34,40 @@ import time
 
 def eliteSet(X,Y,V,r,map,x,y,XG,YG,sizeElite):
     totalCost = getTrajectoryCost(X,Y,V,r,map,x,y,XG,YG)
-    # eliteIdx = np.argpartition(totalCost,sizeElite)
     eliteIdx = totalCost.argsort()[:sizeElite]
-    # plt.figure()
-    # plt.plot(timeToGoal)
-    # plt.figure()
-    # plt.plot(timeToGoal[eliteIdx])
     return eliteIdx
 
 def getTrajectoryCost(X,Y,V,r,map,x,y,XG,YG):
     # trajCost = np.cumsum(scipy.interpolate.interpn((y,x),map,(Y,X),bounds_error=False,fill_value=5000),axis=0)
-    trajCost = np.cumsum(scipy.interpolate.interpn((y,x),map,(Y,X),bounds_error=False,fill_value=5000),axis=0)
+
+    # trajCost = np.cumsum(scipy.interpolate.interpn((y,x),map,(Y,X),bounds_error=False,fill_value=5000),axis=0)
+    trajCost = scipy.interpolate.interpn((y,x),map,(Y,X),bounds_error=False,fill_value=5000)
+
+
+    # print(trajCost)
     # timeToGoal = np.divide(np.sqrt(np.square(X[-1]-300)+np.square(Y[-1]-50)),V[-1])
     # timeToGoal[timeToGoal<0] = 1000
     #distanceToGoal = np.sqrt(np.square(X[-1]-XG)+np.square(Y[-1]-YG))
     distanceToGoal = np.sqrt(np.square(X-XG)+np.square(Y-YG))
 
     # print(distanceToGoal.min())
-    cost = trajCost + np.square(np.multiply(V,r)) + 20000*np.exp(-V) + distanceToGoal
+    cost = 2*trajCost + 0.05*np.square(np.multiply(V,r)) + 5000*np.exp(-V) + 3*distanceToGoal
     #cost = trajCost
+    # am I summing the trajectory cost twice? It looks like yes I am summing cumsum
     intCost = np.sum(cost,axis=0)
-    # print(trajCost.shape)
-    # print(np.exp(-V).shape)
-    # print(distanceToGoal.shape)
-    # print(np.square(np.multiply(V,r)).shape)
-    # print(np.sum(20000*np.exp(-V),axis=0))
-    # print(np.sum(V,axis=0))
-    #print(np.sum(distanceToGoal,axis=0))
-    # print(np.sum(trajCost,axis=0))
-    # print(np.sum(np.square(np.multiply(V,r)),axis=0))
-    
-    
     #totalCost = 500*distanceToGoal + intCost
     totalCost = intCost
     return totalCost    
 
 
 def planTrajectory(x0, preview, dt, num_samples, map, x, y, XG, YG, sizeElite, plot=False):
-
     num_points = int(preview/dt)
-
-    beta = 30
+    beta = 30 # weighting term to change amount of soft maxxing
     d_r = 2
     d_V = 10
     d_v = 2
 
-    # print(np.tanh(2))
-
     # generate samples
-    # beta_dot = np.random.uniform(-dt*d_beta, dt*d_beta, [num_points, num_samples])
     v_dot = np.random.uniform(-dt*d_v, dt*d_v, [num_points, num_samples])
     r_dot = np.random.uniform(-dt*d_r, dt*d_r, [num_points, num_samples])
     #V_dot = np.random.uniform(-dt*d_V, dt*d_V, [num_points, num_samples])
@@ -105,19 +90,10 @@ def planTrajectory(x0, preview, dt, num_samples, map, x, y, XG, YG, sizeElite, p
     V_lb = -dt*d_V - np.tanh(V_star)*dt*d_V
     V_dot = np.random.uniform(V_lb, V_ub, [num_points, num_samples])
 
-
-    # print(V_0)
-    # print(v_0)
-    # print(r_0)
-    # print(X_0)
-    # print(Y_0)
-    # print(Psi_0)
-
-    # beta = beta_0 + np.cumsum(beta_dot,axis=0)
+    # simple cumsum "dynamics"
     v = np.concatenate((v_0*np.ones([1,num_samples]), v_0 + np.cumsum(v_dot,axis=0)),axis=0)
     r = np.concatenate((r_0*np.ones([1,num_samples]), r_0 + np.cumsum(r_dot,axis=0)),axis=0)
     V = np.concatenate((V_0*np.ones([1,num_samples]), V_0 + np.cumsum(V_dot,axis=0)),axis=0)
-
     Psi = Psi_0 + dt*np.cumsum(r,axis=0)
 
     X_dot = np.multiply(np.cos(Psi),V) - np.multiply(np.sin(Psi),v)
@@ -127,13 +103,7 @@ def planTrajectory(x0, preview, dt, num_samples, map, x, y, XG, YG, sizeElite, p
     Y = Y_0 + dt*np.cumsum(Y_dot,axis=0)
 
     eliteIdx = eliteSet(X,Y,V,r,map,x,y,XG,YG,sizeElite)
-    # print(eliteIdx.shape)
 
-    # trajCost = np.cumsum(scipy.interpolate.interpn((y,x),map,(Y,X),bounds_error=False,fill_value=5000),axis=0)
-    # timeToGoal = np.divide(np.sqrt(np.square(X[-1]-300)+np.square(Y[-1]-50)),np.abs(V[-1]))
-    # cost = trajCost+np.square(np.multiply(V,r))
-    # intCost = np.sum(cost,axis=0)
-    # totalCost = 5*timeToGoal + 2*intCost
     Xe = X[:,eliteIdx] 
     Ye = Y[:,eliteIdx]
     Ve = V[:,eliteIdx]
@@ -160,7 +130,7 @@ def planTrajectory(x0, preview, dt, num_samples, map, x, y, XG, YG, sizeElite, p
         # x_coordinates, y_coordinates = np.meshgrid(x,y)
         # fig = plt.figure()
         # plt.pcolor(x_coordinates, y_coordinates, map)
-        plt.plot(X[:,:100],Y[:,:100],color='k',alpha= 0.01)
+        plt.plot(X[:,:100],Y[:,:100],color='k',alpha= 0.05)
         plt.plot(Xe,Ye,color='r',alpha=0.2)
         plt.plot(bestX,bestY,color='b')
         # print(bestV.shape)

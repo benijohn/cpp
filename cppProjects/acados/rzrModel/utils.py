@@ -8,6 +8,7 @@ def plot_results(
     u_max,
     U,
     X_true,
+    yref = None,
     X_est=None,
     Y_measured=None,
     latexify=False,
@@ -83,6 +84,13 @@ def plot_results(
         plt.xlabel("$t$")
         plt.grid()
         plt.legend(loc=1)
+
+    if yref is not None:
+        end = X_true.shape[0]
+        for i in range(nx-nu):
+            plt.subplot(nx + nu, 1, i + nu+1)
+            (line,) = plt.plot(t, yref[i,0:end], label="ref")
+    
 
     plt.subplots_adjust(left=None, bottom=None, right=None, top=None, hspace=0.4)
 

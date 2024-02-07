@@ -23,15 +23,17 @@ gridSize = 0.1
 x = np.arange(0,mapLength,gridSize)
 y = np.arange(0,mapHeight,gridSize)
 
-x_coordinates, y_coordinates = np.meshgrid(x,y)
-fig1 = plt.figure()
-plt.pcolor(x_coordinates, y_coordinates, map)
-
-
 XG = 280
 YG = 45
 
-N=250
+x_coordinates, y_coordinates = np.meshgrid(x,y)
+fig1 = plt.figure()
+plt.pcolor(x_coordinates, y_coordinates, map)
+plt.set_cmap('GnBu')
+plt.plot(XG,YG,'rx')
+
+
+N=200
 plan = np.ndarray([6,N+1])
 plan[:,0] = X0
 
@@ -47,6 +49,7 @@ for i in range(N):
 # print(plan[3,:])
 # print(plan[4,:])
 # print(plan[0,:])
+    
 
 plt.plot(plan[3,:],plan[4,:],color='g',linewidth=3)
 plt.show()    
